@@ -112,9 +112,12 @@ if __name__ == "__main__":
     parser.add_argument('--skip', action='store_true', help='Skip images that already have a tag value')
     parser.add_argument('--review', action='store_true', help='Review images that already have a tag value')
     args = parser.parse_args()
-    load_model()
 
     try:
-        tag_images(args.directory, args.question, args.tag, args.skip)
+        if args.review:
+            review_images(args.directory)
+        else:
+            load_model()
+            tag_images(args.directory, args.question, args.tag, args.skip)
     except KeyboardInterrupt:
         print("Interrupted! Exiting gracefully...")
