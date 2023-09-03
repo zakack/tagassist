@@ -1,3 +1,11 @@
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+# Local data
+james/
+
+# Byte-compiled / optimized / DLL files
+>>>>>>> eec5c12 (Added review functionality)
 __pycache__/
 hcbj/
 james/
