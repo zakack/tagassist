@@ -7,7 +7,7 @@ class CaptionProcessor:
     self.processor = processor
     self.device = device
 
-  def gen(self, inputs, max_length=20, min_length=0, top_k=40, top_p=0.59, num_beams=4):
+  def gen(self, inputs, max_length=20, min_length=0, top_k=30, top_p=0.94, num_beams=4):
     return self.model.generate(
       **inputs,
       #max_new_tokens=20,      # Number of tokens to generate
@@ -15,10 +15,10 @@ class CaptionProcessor:
       num_beams=num_beams,      # Number of beams to use for beam search
       num_return_sequences=1,   # Number of captions to generate
       early_stopping=True,      # Stop when no new tokens are generated
-      repetition_penalty=1.5,   # Penalize repeated words
+      repetition_penalty=1.1,   # Penalize repeated words
       no_repeat_ngram_size=2,   # Number of words that can be repeated
       #do_sample=True,         # Introduce randomness to captions
-      temperature=0.89,        # Measure of randomness 0-1, 0 means no randomness
+      temperature=0.92,        # Measure of randomness 0-1, 0 means no randomness
       top_k=top_k,              # Number of highest probability tokens to keep, 0 means no filtering
       top_p=top_p,              # Probability threshold, 0 means no filtering
       min_length=min_length,    # Minimum length of the sequence to be generated
@@ -45,6 +45,7 @@ class CaptionProcessor:
         (r", a point and shoot(?: camera)?", ""), # Matches ", a point and shoot" with optional " camera"
         (r"it is a ", ""),
         (r"it is ", ""),
+        (r"it's a", ""),
         (r"hair hair", "hair"),
         (r"nothing", "nude"),
         (r"Nothing", "nude"),

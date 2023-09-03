@@ -53,7 +53,6 @@ def review_images(directory):
     images = [f for f in os.listdir(directory) if f.endswith(".jpg") or f.endswith(".png")]
     total_images = len(images)
     for i, filename in enumerate(images, 1):
-        image = Image.open(filename)
         display_image(filename)
         progress_bar(i, total_images)
         json_filename = f"{os.path.splitext(filename)[0]}.json"
@@ -62,7 +61,7 @@ def review_images(directory):
                 data = json.load(file)
                 for key, value in data.items():
                     print(f"{key}: {value}")
-                    input("Press Enter to continue...")
+                input("Press Enter to continue...")
 
 def tag_images(directory_path, question, tag=None, skip=False):
     os.chdir(directory_path)
