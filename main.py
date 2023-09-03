@@ -48,6 +48,22 @@ def progress_bar(current, total, bar_length = 20):
 
     print('Image {} of {} [{}] {:.0f}%'.format(current, total, arrow + spaces, percent))
 
+def review_images(directory):
+    os.chdir(directory)
+    images = [f for f in os.listdir(directory) if f.endswith(".jpg") or f.endswith(".png")]
+    total_images = len(images)
+    for i, filename in enumerate(images, 1):
+        image = Image.open(filename)
+        display_image(filename)
+        progress_bar(i, total_images)
+        json_filename = f"{os.path.splitext(filename)[0]}.json"
+        if os.path.isfile(json_filename):
+            with open(json_filename, 'r') as file:
+                data = json.load(file)
+                for key, value in data.items():
+                    print(f"{key}: {value}")
+                    input("Press Enter to continue...")
+
 def tag_images(directory_path, question, tag=None, skip=False):
     os.chdir(directory_path)
     images = [f for f in os.listdir(directory_path) if f.endswith(".jpg") or f.endswith(".png")]
@@ -94,6 +110,7 @@ if __name__ == "__main__":
     parser.add_argument('question', type=str, help='Question for tagging')
     parser.add_argument('--tag', type=str, default=None, help='Optional tag for key')
     parser.add_argument('--skip', action='store_true', help='Skip images that already have a tag value')
+    parser.add_argument('--review', action='store_true', help='Review images that already have a tag value')
     args = parser.parse_args()
     load_model()
 
