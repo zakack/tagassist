@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import random
 import time
@@ -12,6 +13,7 @@ from tqdm import tqdm
 import caption_processor
 import term_image.image
 from importlib import reload
+import templates
 
 def display_image(image_path):
     image = term_image.image.from_file(image_path)
@@ -48,7 +50,14 @@ def progress_bar(current, total, bar_length = 20):
 
     print('Image {} of {} [{}] {:.0f}%'.format(current, total, arrow + spaces, percent))
 
-def review_images(directory):
+def process_template(template, data):
+    if hasattr(templates, template):
+        template = getattr(templates, template)
+    else:
+        raise ValueError(f"Template {args.template} not found")
+    return template(data)
+
+def review_images(directory, template=None):
     os.chdir(directory)
     images = [f for f in os.listdir(directory) if f.endswith(".jpg") or f.endswith(".png")]
     total_images = len(images)
@@ -61,6 +70,11 @@ def review_images(directory):
                 data = json.load(file)
                 for key, value in data.items():
                     print(f"{key}: {value}")
+                if template:
+                    processed = process_template(template, data)
+                    print(processed)
+                    with open(f"{os.path.splitext(filename)[0]}.txt", 'w') as outfile:
+                        outfile.write(processed)
                 input("Press Enter to continue...")
 
 def tag_images(directory_path, question, tag=None, skip=False):
@@ -110,11 +124,12 @@ if __name__ == "__main__":
     parser.add_argument('--tag', type=str, default=None, help='Optional tag for key')
     parser.add_argument('--skip', action='store_true', help='Skip images that already have a tag value')
     parser.add_argument('--review', action='store_true', help='Review images that already have a tag value')
+    parser.add_argument('--template', type=str, default=None, help='Templating function for output text files')
     args = parser.parse_args()
 
     try:
         if args.review:
-            review_images(args.directory)
+            review_images(args.directory, args.template)
         else:
             load_model()
             tag_images(args.directory, args.question, args.tag, args.skip)
