@@ -7,7 +7,7 @@ class CaptionProcessor:
     self.processor = processor
     self.device = device
 
-  def gen(self, inputs, max_length=20, min_length=0, top_k=30, top_p=0.94, num_beams=4):
+  def gen(self, inputs, max_length=75, min_length=0, top_k=30, top_p=0.94, num_beams=4):
     return self.model.generate(
       **inputs,
       #max_new_tokens=20,      # Number of tokens to generate
@@ -18,7 +18,7 @@ class CaptionProcessor:
       repetition_penalty=1.1,   # Penalize repeated words
       no_repeat_ngram_size=2,   # Number of words that can be repeated
       #do_sample=True,         # Introduce randomness to captions
-      temperature=0.92,        # Measure of randomness 0-1, 0 means no randomness
+      temperature=0.93,        # Measure of randomness 0-1, 0 means no randomness
       top_k=top_k,              # Number of highest probability tokens to keep, 0 means no filtering
       top_p=top_p,              # Probability threshold, 0 means no filtering
       min_length=min_length,    # Minimum length of the sequence to be generated

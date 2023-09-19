@@ -2,45 +2,27 @@ import os
 import re
 import json
 import random
-import time
 import argparse
-import ueberzug.lib.v0 as ueberzug
 from PIL import Image
-import numpy as np
 import torch
 from transformers import AutoProcessor, Blip2ForConditionalGeneration
-from tqdm import tqdm
 import caption_processor
 import term_image.image
-from importlib import reload
 import templates
 
 def display_image(image_path):
     image = term_image.image.from_file(image_path)
     image.draw()
-#def display_image(image_path):
-    #with ueberzug.Canvas() as canvas:
-        #image = canvas.create_placement('image', x=0, y=0)
-        #image.path = image_path
-        #image.visibility = ueberzug.Visibility.VISIBLE
-        #time.sleep(10)
-        #asyncio.get_event_loop().run_until_complete(asyncio.sleep(2))
 
-def load_model(model_name="Salesforce/blip2-opt-2.7b"):
+def load_model(model_name="/grande/models/blip2-opt-6.7b-fp16-sharded/"):
   global model, processor, device
 
   print("Loading Model")
   processor = AutoProcessor.from_pretrained(model_name)
   model = Blip2ForConditionalGeneration.from_pretrained(model_name, torch_dtype=torch.float16)
 
-  if torch.cuda.is_available():
-    print("CUDA available, using GPU")
-    device = "cuda"
-  else:
-    print("CUDA not available, using CPU")
-    device = "cpu"
-
-  print("Moving model to device")
+  #print("Moving model to device")
+  device = "cuda"
   model.to(device)
 
 def progress_bar(current, total, bar_length = 20):
@@ -125,10 +107,31 @@ if __name__ == "__main__":
     parser.add_argument('--skip', action='store_true', help='Skip images that already have a tag value')
     parser.add_argument('--review', action='store_true', help='Review images that already have a tag value')
     parser.add_argument('--template', type=str, default=None, help='Templating function for output text files')
+    parser.add_argument('--interactive', action='store_true', help='Interactive mode')
     args = parser.parse_args()
 
     try:
-        if args.review:
+        if args.interactive:
+            load_model()
+            with open(args.question, 'r') as q:
+                question = q.readline().strip()
+            while True:
+                print("Directory: " + args.directory)
+                print("Question: " + question)
+                tag = input("Enter a key for this question: ")
+                if args.skip:
+                    print("Skipping images that already have a tag value")
+                tag_images(args.directory, question, tag, args.skip)
+                review = input("Review images? [Y/n]")
+                if review.lower() != 'n':
+                    review_images(args.directory, args.template)
+                again = input("Tag more images? [Y/n]")
+                if again.lower() == 'n':
+                    break
+                question = input("Enter a question: ")
+                print("\n")
+
+        elif args.review:
             review_images(args.directory, args.template)
         else:
             load_model()
